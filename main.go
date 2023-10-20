@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"sync"
 	"time"
+	// "go-project/helper"
 )
 
 // var are mutable; const are immutable
@@ -51,7 +52,7 @@ var remainingTickets uint = 50
 // it will be in scope for a function to append to
 var bookings = make([]UserData, 0)
 
-// this allows us to do concurrency. it will hold the goroutine threads
+// a WaitGroup allows us to do concurrency. it will hold the goroutine threads and wait for them to finish before exiting
 var wg = sync.WaitGroup{}
 
 // entry point
@@ -62,6 +63,7 @@ func main() {
 	// there are no while loops. this is equivalent to a while True
 	for {
 		firstName, lastName, email, userTickets := getUserInput()
+		// isValidName, isValidEmail, isValidTicketNumber := helper.ValidateUserInput(firstName, lastName, email, userTickets)
 		isValidName, isValidEmail, isValidTicketNumber := validateUserInput(firstName, lastName, email, userTickets)
 
 		// demo of switching as an alternative to if-else if-else. it's like case statements
@@ -81,7 +83,9 @@ func main() {
 		if isValidName && isValidEmail && isValidTicketNumber {
 			bookTicket(userTickets, firstName, lastName, email)
 
-			// we're adding a new thread to the wait group so the program doesn't end before this is returned
+			// we're adding 1 new thread to the wait group so the program doesn't end before this is returned
+			// if we had a second go routing right below it, we'd say wg.Add(2)
+			// we are increasing the counter used to track completed threads by 1
 			wg.Add(1)
 			// this go call is how we call a goroutine on the new thread
 			go sendTicket(userTickets, firstName, lastName, email)
@@ -136,6 +140,7 @@ func getFirstNames() []string {
 		// and then we take the first name and append it
 		// firstNames = append(firstNames, names[0])
 		// go uses append like Python, but you pass the list and what you want to append into a function
+		// and structs use . notation for getting property ("attribute" in python) names
 		firstNames = append(firstNames, booking.firstName)
 	}
 	return firstNames
@@ -171,7 +176,7 @@ func getUserInput() (string, string, string, uint) {
 
 // put the input types in. this function returns no value so no extra syntax up front
 func bookTicket(userTickets uint, firstName string, lastName string, email string) {
-	// access those package/global variables that are in scope
+	// access those package (almost like global) variables that are in scope
 	remainingTickets = remainingTickets - userTickets
 
 	// initialize a UserData struct which was defined above and is in scope
@@ -198,7 +203,8 @@ func sendTicket(userTickets uint, firstName string, lastName string, email strin
 	fmt.Println("~~~~~~~~~~~~~~~~~~~~~~~~~~")
 	fmt.Printf("Sending tickets:\n %v \nsent to email address %v\n", ticket, email)
 	fmt.Println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-	// this let's the wait group know this process is done
+	// this let's the wait group know this process is done so it doesn't need to wait any longer
+	// we are decreasing the counter used to track completed threads by 1
 	wg.Done()
 }
 

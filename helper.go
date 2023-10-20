@@ -4,6 +4,7 @@ package main
 
 import "strings"
 
+// package functions or variables you want to export must be Capitalized (although we didn't here and it still worked), just like the libraries we import like strings.Contains()
 // function variables require types and then show return values. multiple return values are possible like Python.
 func validateUserInput(firstName string, lastName string, email string, userTickets uint) (bool, bool, bool) {
 	isValidName := len(firstName) >= 2 && len(lastName) >= 2
